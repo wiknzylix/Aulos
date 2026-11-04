@@ -1,0 +1,21 @@
+# Third-party notices
+
+Aulos original code and QQ protocol ports: GPL-3.0-or-later. The bundled QRC
+algorithm port retains its original GPL-3.0-only notice; distribute the combined
+work under GPL version 3 and retain all file-specific notices. Full GPL text is
+in LICENSE.
+
+- NeteaseCloudMusicApiEnhanced/api-enhanced — MIT. Protocol reference and EAPI/weapi flow; full notice in licenses/Netease-MIT.txt.
+- L-1124/QQMusicApi — GPL-3.0-or-later. Login, RPC, request signature and lyric protocols.
+- QrcCrypto.java — Java port of QQMusicApi algorithms/tripledes.py, Copyright (c) 2024 沉默の金 <cmzj@cmzj.org>, GPL-3.0-only. Its documented PC-2 offset is deliberately preserved.
+- MakcRe/KuGouMusicApi — MIT. Login, request signatures, KRC format and playback endpoints; full notice in licenses/Kugou-MIT.txt.
+- javazoom:jlayer:1.0.1 — LGPL-2.1-or-later, Copyright JavaZOOM. Embedded as a separate nested JAR; full license in licenses/JLayer-LGPL-2.1.txt. No changes to JLayer. Matching source is included in third-party-sources/jlayer-1.0.1-sources.jar and available at https://repo.maven.apache.org/maven2/javazoom/jlayer/1.0.1/jlayer-1.0.1-sources.jar .
+- com.google.zxing:core:3.5.3 — Apache-2.0, Copyright ZXing authors. Embedded as a separate nested JAR; full license in licenses/ZXing-Apache-2.0.txt.
+- Online-Duration-Counter — MIT, Copyright (c) 2026 GPT-6.1 Sol and wiknzylix. Aulos uses a newly written UI based on its requested visual style and interaction conventions.
+
+Minecraft, Fabric, LWJGL, OpenAL and Gson are supplied by the game/loader and are
+not bundled here. Music-platform brands and album artwork belong to their
+respective owners. No music, account credentials or third-party mods are bundled.
+
+- Project Nayuki FLAC-library-Java — LGPL-3.0-or-later, Copyright Project Nayuki. Pinned commit e807ab25e28a3759ac82e119a406490f8e336b9b (the exact pinned revision is also recorded in FLAC_SOURCE.txt). Included decoder/common sources and BitOutputStream under src/client/java/io/nayuki/flac retain original headers; only whitespace formatting is changed. License in licenses/Nayuki-LGPL-3.0.txt; full corresponding source is included. https://github.com/nayuki/FLAC-library-Java
+

@@ -1,0 +1,1 @@
+Project Nayuki FLAC-library-Java; LGPL-3.0-or-later; commit e807ab25e28a3759ac82e119a406490f8e336b9b; https://github.com/nayuki/FLAC-library-Java/tree/e807ab25e28a3759ac82e119a406490f8e336b9b

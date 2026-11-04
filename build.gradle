@@ -1,0 +1,142 @@
+plugins { id 'fabric-loom' version '1.14.10' }
+group = 'dev.shironeko'
+version = '0.5.3'
+base { archivesName = 'Aulos-1.21.11' }
+repositories { mavenCentral() }
+dependencies {
+    minecraft 'com.mojang:minecraft:1.21.11'
+    mappings loom.officialMojangMappings()
+    modImplementation 'net.fabricmc:fabric-loader:0.18.4'
+    modImplementation 'net.fabricmc.fabric-api:fabric-api:0.141.4+1.21.11'
+    implementation 'javazoom:jlayer:1.0.1'
+    include 'javazoom:jlayer:1.0.1'
+    implementation 'com.google.zxing:core:3.5.3'
+    include 'com.google.zxing:core:3.5.3'
+    testImplementation platform('org.junit:junit-bom:5.11.4')
+    testImplementation 'org.junit.jupiter:junit-jupiter'
+    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    productionRuntimeMods 'net.fabricmc.fabric-api:fabric-api:0.141.4+1.21.11'
+    if (providers.gradleProperty('devCompatMods').isPresent()) modLocalRuntime files(fileTree(dir: providers.gradleProperty('devCompatMods').get(), include: ['*.jar']))
+}
+loom {
+    splitEnvironmentSourceSets()
+    mods { music_together { sourceSet sourceSets.main; sourceSet sourceSets.client } }
+    runs { server { runDir 'build/server' }; client { runDir 'build/client' } }
+}
+sourceSets.test { compileClasspath += sourceSets.client.output; runtimeClasspath += sourceSets.client.output }
+java { sourceCompatibility = JavaVersion.VERSION_21; targetCompatibility = JavaVersion.VERSION_21; withSourcesJar() }
+tasks.withType(JavaCompile).configureEach { options.release = 21; options.encoding = 'UTF-8' }
+processResources { inputs.property 'version', version; filesMatching('fabric.mod.json') { expand version: project.version } }
+test { useJUnitPlatform(); testLogging { events 'passed', 'failed', 'skipped' } }
+tasks.register('probeProviders', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.ProviderProbe'
+    args layout.buildDirectory.dir('provider-probe').get().asFile.absolutePath
+}
+tasks.register('probeAudio', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.AudioProbe'
+    args layout.buildDirectory.dir('audio-probe').get().asFile.absolutePath, providers.gradleProperty('audioSeconds').getOrElse('1800')
+}
+tasks.register('probeLogin', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.LoginProbe'
+    args layout.buildDirectory.dir('live-accounts').get().asFile.absolutePath,
+         layout.buildDirectory.file('live-accounts/login-qr.png').get().asFile.absolutePath,
+         providers.gradleProperty('loginPlatform').getOrElse('netease')
+}
+
+tasks.register('probeAccount', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.provider.AccountProbe'
+    args layout.buildDirectory.dir('live-accounts').get().asFile.absolutePath,
+         providers.gradleProperty('loginPlatform').getOrElse('netease')
+}
+jar { from('LICENSE'); from('THIRD_PARTY_NOTICES.txt'); from('licenses') { into 'META-INF/licenses' } }
+fabricApi { configureTests { createSourceSet = true; modId = 'aulos_test'; enableGameTests = false; enableClientGameTests = true } }
+loom.runs.clientGameTest { vmArg '-Daulos.test.noAudio=true' }
+tasks.register('gametestJar', Jar) {
+    dependsOn tasks.named('gametestClasses')
+    from sourceSets.gametest.output
+    archiveClassifier = 'gametest-dev'
+}
+tasks.register('remapGametestJar', net.fabricmc.loom.task.RemapJarTask) {
+    dependsOn tasks.named('gametestJar')
+    inputFile = tasks.named('gametestJar').flatMap { it.archiveFile }
+    archiveClassifier = 'gametest'
+}
+tasks.register('runCompatClient', net.fabricmc.loom.task.prod.ClientProductionRunTask) {
+    dependsOn tasks.named('remapGametestJar'), tasks.named('remapJar')
+    mods.from(tasks.named('remapJar'))
+    mods.from(tasks.named('remapGametestJar'))
+    mods.from(fileTree(dir: providers.gradleProperty('compatMods').getOrElse('../compat'), include: ['*.jar']))
+    jvmArgs.addAll('-Dfabric.client.gametest=true', '-Daulos.test.noAudio=true', '-Djava.net.preferIPv4Stack=true')
+    if (providers.gradleProperty('liveQr').isPresent()) jvmArgs.add('-Daulos.test.qrUi=true')
+    runDir = layout.buildDirectory.dir('run/compat')
+    useXVFB = false
+}
+
+tasks.register('probeNativeHiRes', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.NativeHiResProbe'
+    args layout.buildDirectory.dir('native-hires-probe').get().asFile.absolutePath
+}
+
+tasks.register('probeTransport', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.TransportProbe'
+    args layout.buildDirectory.dir('transport-probe').get().asFile.absolutePath
+}
+
+tasks.register('probeRelayAudio', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.RelayAudioProbe'
+    args layout.buildDirectory.dir('relay-audio-probe').get().asFile.absolutePath
+}
+
+tasks.register('probeRealRelay', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.RealRelayProbe'
+    args layout.buildDirectory.dir('wechat-live').get().asFile.absolutePath,
+         layout.buildDirectory.dir('real-relay-probe').get().asFile.absolutePath
+}
+
+tasks.register('probeOnlineJoin', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.OnlineJoinProbe'
+    args layout.buildDirectory.dir('live-accounts').get().asFile.absolutePath,
+         layout.buildDirectory.dir('online-join-probe-v5').get().asFile.absolutePath
+}
+
+tasks.register('probeCompact', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.CompactSourceProbe'
+    args layout.buildDirectory.dir('live-accounts').get().asFile.absolutePath,
+         layout.buildDirectory.dir('wechat-live').get().asFile.absolutePath,
+         layout.buildDirectory.dir('compact-probe').get().asFile.absolutePath
+}
+
+tasks.register('probeRelayJoin', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.RelayJoinProbe'
+    args layout.buildDirectory.dir('relay-join-probe').get().asFile.absolutePath
+}
+
+tasks.register('probeCovers', JavaExec) {
+    dependsOn testClasses
+    classpath = sourceSets.test.runtimeClasspath + sourceSets.client.runtimeClasspath
+    mainClass = 'dev.shironeko.music.CoverProbe'
+    args layout.buildDirectory.dir('live-accounts').get().asFile.absolutePath,
+         layout.buildDirectory.dir('cover-probe-v51').get().asFile.absolutePath
+}

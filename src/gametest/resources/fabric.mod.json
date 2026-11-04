@@ -1,0 +1,1 @@
+{"schemaVersion":1,"id":"aulos_test","version":"1","environment":"client","entrypoints":{"fabric-client-gametest":["dev.shironeko.music.AulosClientTest"]}}

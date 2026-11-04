@@ -1,0 +1,30 @@
+{
+  "schemaVersion": 1,
+  "id": "aulos",
+  "version": "${version}",
+  "name": "Aulos",
+  "description": "minecraft支持三平台的一起听音乐播放器",
+  "authors": [
+    "Shironeko",
+    "OpenAI Codex"
+  ],
+  "license": "GPL-3.0-only",
+  "environment": "*",
+  "mixins": [
+    "aulos.mixins.json"
+  ],
+  "entrypoints": {
+    "main": [
+      "dev.shironeko.music.MusicTogether"
+    ],
+    "client": [
+      "dev.shironeko.music.client.MusicClient"
+    ]
+  },
+  "depends": {
+    "fabricloader": ">=0.18.4",
+    "minecraft": "1.21.11",
+    "java": ">=21",
+    "fabric-api": "*"
+  }
+}

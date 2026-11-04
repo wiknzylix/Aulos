@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "package": "dev.shironeko.music.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": ["ServerAudioPackets"],
+  "client": ["ClientAudioPackets"],
+  "injectors": {"defaultRequire": 1}
+}
